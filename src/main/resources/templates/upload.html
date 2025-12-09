@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <title>Upload</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div id="box">
+<div th:replace="fragments :: navbar"></div>
+
+    <h1 th:text="#{app.info}">Placeholder</h1>
+
+    <h2 th:text="#{upload.page.info}"></h2>
+    <div>
+    <span th:text="#{logged.message}"></span>
+    <span id="usernameSpan"></span>
+    </div>
+<br>
+    <div>
+<span th:text="#{token.info}"></span>
+<span id="tokenMinutesLeft"></span>
+        </div>
+<br>
+    <div>
+<button id="logoutBtn"
+        th:text="#{logout.button}"
+>Logout
+
+</button>
+
+<button id="refreshBtn" th:text="#{refresh.button}"> refresh token</button>
+    </div>
+
+
+<div id="uploadArea">
+<label class="file-upload-btn">
+    <span th:text="#{choose.file.msg}">Choose File</span>
+    <input type="file" id="fileInput" hidden>
+</label>
+
+    <button id="uploadBtn"
+            th:data-uploadsuccess="#{upload.success}"
+            th:data-uploadfailure="#{upload.failure}"
+            th:data-uploadfilenotchosed="#{upload.filenotchosen}"
+
+            th:text="#{upload.button}"
+    >
+    </button>
+    <br>
+<span id="filenameSpan" th:text="#{upload.filenotchosen}" ></span>
+<br><br>
+
+
+
+</div>
+
+    <p id="message"></p>
+    <table id="filesTable">
+        <thead>
+        <tr>
+            <th th:text="#{table.filename}">Filename</th>
+            <th th:text="#{table.size}">Size</th>
+            <th th:text="#{table.actions}">Download</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</div>
+<script th:type="module"  th:src="@{/upload.js}"></script>
+
+
+</body>
+</html>

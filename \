@@ -1,0 +1,23 @@
+#1/bin/sh
+
+# login
+
+# Make request and save JWT to variable
+JWT=$(curl -s -X POST http://localhost:8080/auth/login \
+    -H "Content-Type: application/json" \
+-d '{  "email":"herower6@gmail.com", "password" : "heslo" }' | jq -r '.token')
+
+echo "$JWT"
+
+sleep 1
+
+curl -v -X GET "localhost:8080/users/me"      -H "Authorization: Bearer ${JWT}"
+
+
+sleep 5
+
+
+
+curl -v -X GET "localhost:8080/users/me"      -H "Authorization: Bearer ${JWT}"
+
+

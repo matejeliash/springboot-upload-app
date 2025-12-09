@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <title>Verify</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Login</title>
+</head>
+<body>
+
+<div id="box">
+
+    <div th:replace="fragments :: navbar"></div>
+
+    <h1 th:text="#{app.info}">Placeholder</h1>
+    <h2 th:text="#{verify.message}">Placeholder</h2>
+    <div>
+        <label for="email" th:text="#{label.email}" > email </label>
+        <br>
+        <input type="text" id="email">
+    </div>
+    <div>
+        <label for="verificationCode" th:text="#{label.verificationcode}"> verification code</label>
+        <br>
+        <input type="text" id="verificationCode">
+    </div>
+    <button id="verifyBtn" th:text="#{verify.button}"></button>
+
+
+    <p id="message"></p>
+
+</div>
+
+<script type="module" th:src="@{/verify.js}"></script>
+
+</script>
+
+</body>
+</html>

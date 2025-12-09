@@ -1,0 +1,173 @@
+body{
+    background: radial-gradient(circle,rgba(0, 0, 0, 1) 0%, rgba(34, 34, 34, 1) 59%);
+
+
+
+    color: #ffffff;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 400; /* normal weight */
+}
+
+
+.file-upload-btn {
+    display: inline-block;
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #ccc8c8;
+    color: black;
+    border-radius: 6px;
+    border: black;
+
+    font-family: 'Work Sans', sans-serif;
+    font-weight: bold;
+}
+
+/*general button style*/
+button{
+    display: inline-block;
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #ccc8c8;
+    color: black;
+    border-radius: 6px;
+    border: black;
+    outline: black;
+    margin: 10px;
+
+    font-family: 'Work Sans', sans-serif;
+    font-weight: bold;
+}
+
+#box{
+    display: flex;
+    flex-direction: column; /* stack elements vertically */
+    align-items: center;    /
+}
+
+
+
+#mynav{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#mynavLinks{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    list-style: none;
+}
+
+#mynavLinks li a{
+    color: #fff;
+    font-family: 'Bitcount Prop Single', sans-serif;
+
+    font-size: large;
+    text-decoration: none;
+}
+
+#mynavLinks li a:hover {
+    text-decoration: underline;
+}
+
+#mynavLinks li a.active {
+    text-decoration: underline;
+}
+
+
+
+h1, h2, h3 {
+    font-family: 'Bitcount Prop Single', sans-serif;
+    font-weight: 700;
+
+}
+
+
+.language-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.lang-btn {
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #ccc;
+    color: black;
+    border: none;
+    border-radius: 6px;
+}
+
+.lang-menu {
+    display: none; /* hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 6px;
+    min-width: 120px;
+    z-index: 10;
+}
+
+.lang-menu li a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: black;
+}
+
+.lang-menu li a:hover {
+    background-color: #f0f0f0;
+}
+
+/* show menu when hovering over button */
+.language-selector:hover .lang-menu {
+    display: block;
+}
+
+#uploadArea{
+    background: #333333;
+    border-radius: 10px;
+    padding :10px;
+    min-width: 50%;
+}
+
+table,  td{
+    border: 1px solid white;
+    border-collapse: collapse ;
+
+
+}
+
+table td{
+    background: #333;
+    padding: 2px;
+
+}
+
+
+a:active{
+    text-decoration: underline;
+}
+
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+input{
+    padding: 5px;
+}
+
+#tokenMinutesLeft, #usernameSpan{
+    font-weight: bold;
+}

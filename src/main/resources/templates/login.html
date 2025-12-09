@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/styles.css}">
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="box">
+
+
+    <div th:replace="fragments :: navbar"></div>
+
+
+    <h1 th:text="#{app.info}">Placeholder</h1>
+    <h2 th:text="#{login.message}">Placeholder</h2>
+    <div>
+    <label for="username" th:text="#{label.username}"></label>
+    <br>
+    <input type="text" id="username">
+    </div>
+    <br>
+
+        <div>
+
+    <label for="password" th:text="#{label.password}"></label>
+    <br>
+    <input type="password" id="password">
+    <br>
+        </div>
+    <button id="loginBtn"  th:text="#{login.button}" ></button>
+
+    <p id="message"></p>
+</div>
+<script type="module" th:src="@{/login.js}"></script>
+
+</script>
+
+</body>
+</html>
