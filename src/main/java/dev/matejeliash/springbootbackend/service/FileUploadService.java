@@ -1,17 +1,21 @@
 package dev.matejeliash.springbootbackend.service;
 
-import dev.matejeliash.springbootbackend.dto.FileDto;
+import dev.matejeliash.springbootbackend.dto.FileInfo;
 import dev.matejeliash.springbootbackend.dto.UploadedFileDto;
+import dev.matejeliash.springbootbackend.exception.APIException;
+import dev.matejeliash.springbootbackend.exception.ErrorCode;
 import dev.matejeliash.springbootbackend.model.UploadedFile;
 import dev.matejeliash.springbootbackend.model.User;
 import dev.matejeliash.springbootbackend.repository.UploadedFileRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.*;
 import java.io.*;
 import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,7 +30,7 @@ public class FileUploadService {
 
 
 
-
+    // load upload dir from properties
     public FileUploadService(UploadedFileRepository uploadedFileRepository,
             @Value("${upload.dir.path}") String uploadDirPath
     ){
@@ -37,27 +41,38 @@ public class FileUploadService {
    // upload one file using multipart
     public UploadedFile uploadFile(MultipartFile file, User user) throws IOException {
         Files.createDirectories(uploadDir);
-        //
+
         Path userDir = uploadDir.resolve("user_" + user.getId());
         Files.createDirectories(userDir);
 
         // Resolve the file path within the user's directory
         Path path = userDir.resolve(file.getOriginalFilename());
 
+
+        String filename= file.getOriginalFilename();
+        // change filename and path if already exists with this name
+        if (Files.exists(path)){
+            String timestamp = LocalDateTime.now().format(
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
+            );
+            path  = userDir.resolve(timestamp + "_" + file.getOriginalFilename());
+            filename=timestamp + "_" + filename;
+
+        }
+
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
         }
 
-
-        UploadedFile uploadedFile = new UploadedFile(file.getOriginalFilename(),path.toString(),file.getSize(), user);
+        UploadedFile uploadedFile = new UploadedFile(filename,path.toString(),file.getSize(), user);
 
         return uploadedFileRepository.save(uploadedFile);
     }
 
     // return FileStream for buffered file reading we use it in controller to create Resource downloadable in browser
-    public InputStream getFileInputStream(FileDto fileDto, User user){
+    public InputStream getFileInputStream(FileInfo fileInfo, User user){
 
-        Optional<UploadedFile> fileMaybe = uploadedFileRepository.findById(fileDto.getId());
+        Optional<UploadedFile> fileMaybe = uploadedFileRepository.findById(fileInfo.getId());
         if (fileMaybe.isPresent() ){
             UploadedFile uploadedFile = fileMaybe.get();
             if (Objects.equals(uploadedFile.getUser().getId(), user.getId())){
@@ -65,25 +80,37 @@ public class FileUploadService {
                 try{
                     InputStream inputStream = new FileInputStream(file);
                     return  inputStream;
-
+                // found in db but not in fs
                 }catch (FileNotFoundException e){
-                    throw new RuntimeException("file with this id do not exist");
-                }
+                    throw  new APIException(
+                            "file with this filename does not exits",
+                            ErrorCode.FILE_NOT_EXIST,
+                            HttpStatus.INTERNAL_SERVER_ERROR
+                    );
 
+                }
+            //user does not own file
             }else{
-                throw new RuntimeException("user does not own this file");
+                throw  new APIException(
+                        "user does not own file",
+                        ErrorCode.NOT_OWNER,
+                        HttpStatus.UNAUTHORIZED
+                );
             }
 
         }else{
-
-            throw new RuntimeException("file with this id do not exist");
+            throw  new APIException(
+                    "file with this filename does not exits",
+                    ErrorCode.FILE_NOT_EXIST,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
 
         }
     }
 
     // find if file with id exists in DB
-    public UploadedFile getFileFromDBIfExists(FileDto fileDto){
-        Optional<UploadedFile> fileMaybe = uploadedFileRepository.findById(fileDto.getId());
+    public UploadedFile getFileFromDBIfExists(FileInfo fileInfo){
+        Optional<UploadedFile> fileMaybe = uploadedFileRepository.findById(fileInfo.getId());
         return fileMaybe.orElse(null);
 
 
@@ -95,16 +122,25 @@ public class FileUploadService {
     }
 
     // delete file, user must own file, it does not crash when file was removed in FS
-    public FileDto deleteFile(FileDto fileDto, User user) {
+    public FileInfo deleteFile(FileInfo fileInfo, User user) {
 
 
-        UploadedFile uploadedFile = getFileFromDBIfExists(fileDto);
+        UploadedFile uploadedFile = getFileFromDBIfExists(fileInfo);
         if (uploadedFile == null) {
-            throw new RuntimeException("file does not exist");
+
+            throw  new APIException(
+                    "file with this filename does not exits",
+                    ErrorCode.FILE_NOT_EXIST,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
 
         if (!doesUserOwnFile(uploadedFile, user)) {
-            throw new RuntimeException("user does not own file");
+            throw  new APIException(
+                    "user does not own file",
+                    ErrorCode.NOT_OWNER,
+                    HttpStatus.UNAUTHORIZED
+            );
         }
 
         File file = new File(uploadedFile.getFilepath());
@@ -120,10 +156,14 @@ public class FileUploadService {
         try {
             uploadedFileRepository.delete(uploadedFile);
         } catch (Exception e) {
-            throw new RuntimeException("failed to delete file entry from DB", e);
+            throw  new APIException(
+                    "file with this filename does not exits",
+                    ErrorCode.FILE_NOT_EXIST,
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
 
-        return fileDto;
+        return fileInfo;
     }
 
 

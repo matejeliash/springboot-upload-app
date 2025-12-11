@@ -1,9 +1,9 @@
 package dev.matejeliash.springbootbackend.exception;
 
+import dev.matejeliash.springbootbackend.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,36 +13,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    @ExceptionHandler(APIException.class)
+    public ResponseEntity<ErrorResponse> handleAPIException(APIException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getErrorCode().name(),
+                e.getHttpStatus().value(),
+                e.getMessage()
+        );
+        return ResponseEntity.status(e.getHttpStatus()).body(response);
+
+    }
+
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException e){
+    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error: " + e.getMessage());
 
     }
 
-
-    @ExceptionHandler(UsernameUsedException.class)
-    public ResponseEntity<String> handleUsernameUsedException(UsernameUsedException e){
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: " + e.getMessage());
-
-    }
-
-
-    @ExceptionHandler(EmailUsedException.class)
-    public ResponseEntity<String> handleUEmailUsedException(EmailUsedException e){
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: " + e.getMessage());
-
-    }
-
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<String> handleException(Exception ex) {
-//
-//        ErrorResponse error = new ErrorResponse(ex.getMessage(), 400);
-//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-//    }
 }

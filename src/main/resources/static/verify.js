@@ -27,8 +27,19 @@ async function verify() {
         });
 
         if (!res.ok) {
-            setMessage(messages["verify.failure"],true);
+            const resObj= await res.json();
+            console.log(resObj)
+            if (resObj.errorCode === "ACCOUNT_ALREADY_VERIFIED"){
+                setMessage(messages["error.verification.already.done"],true);
+            }else if (resObj.errorCode === "CODE_EXPIRED"){
+                setMessage(messages["error.verification.code.expired"],true);
+            } else if (resObj.errorCode === "WRONG_CODE"){
+            setMessage(messages["error.verification.wrong.code"],true);
+        }
+
             return
+
+
         }
 
         setMessage(messages["verify.success"], false);

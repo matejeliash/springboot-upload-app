@@ -95,6 +95,7 @@ h1, h2, h3 {
 .lang-btn {
     cursor: pointer;
     padding: 8px 12px;
+    margin-left: 40px;
     background-color: #ccc;
     color: black;
     border: none;

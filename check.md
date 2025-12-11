@@ -21,18 +21,18 @@
 │   │   │               │   ├── LangSuppportConfiguration.java [x]
 │   │   │               │   └── SecurityConfiguration.java [x]
 │   │   │               ├── controller
-│   │   │               │   ├── AuthController.java
+│   │   │               │   ├── AuthController.java  [x]
 │   │   │               │   ├── FileController.java
 │   │   │               │   ├── MessageController.java [x]
 │   │   │               │   ├── PageController.java [x]
 │   │   │               │   └── UserController.java [x]
 │   │   │               ├── dto
-│   │   │               │   ├── FileDto.java
-│   │   │               │   ├── LoginUserDto.java
-│   │   │               │   ├── RegisterUserDto.java
-│   │   │               │   ├── ResponseUserDto.java
-│   │   │               │   ├── UploadedFileDto.java
-│   │   │               │   └── VerifyUserDto.java
+│   │   │               │   ├── FileDto.java [x]
+│   │   │               │   ├── LoginUserDto.java [x]
+│   │   │               │   ├── RegisterUserDto.java [x]
+│   │   │               │   ├── ResponseUserDto.java [x]
+│   │   │               │   ├── UploadedFileDto.java [x]
+│   │   │               │   └── VerifyUserDto.java [x]
 │   │   │               ├── exception [x]
 │   │   │               │   ├── EmailUsedException.java [x]
 │   │   │               │   ├── GlobalExceptionHandler.java [x]
@@ -46,10 +46,10 @@
 │   │   │               ├── response [x]
 │   │   │               │   └── LoginResponse.java [x]
 │   │   │               ├── service
-│   │   │               │   ├── AuthentificationService.java
+│   │   │               │   ├── AuthentificationService.java [x]
 │   │   │               │   ├── EmailService.java [x]
-│   │   │               │   ├── FileUploadService.java
-│   │   │               │   ├── JwtService.java
+│   │   │               │   ├── FileUploadService.java 
+│   │   │               │   ├── JwtService.java [x]
 │   │   │               │   └── UserService.java [x]
 │   │   │               └── SpringbootbackendApplication.java
 │   │   └── resources

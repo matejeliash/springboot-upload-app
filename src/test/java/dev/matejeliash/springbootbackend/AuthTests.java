@@ -2,8 +2,8 @@ package dev.matejeliash.springbootbackend;
 
 import dev.matejeliash.springbootbackend.dto.LoginUserDto;
 import dev.matejeliash.springbootbackend.dto.RegisterUserDto;
-import dev.matejeliash.springbootbackend.exception.EmailUsedException;
-import dev.matejeliash.springbootbackend.exception.UsernameUsedException;
+import dev.matejeliash.springbootbackend.exception.APIException;
+import dev.matejeliash.springbootbackend.exception.ErrorCode;
 import dev.matejeliash.springbootbackend.model.User;
 import dev.matejeliash.springbootbackend.repository.UserRepository;
 import dev.matejeliash.springbootbackend.service.AuthentificationService;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -83,7 +84,7 @@ public class AuthTests {
     }
 
     @Test
-    void authenticate_userNotFound_throwsRuntimeException() {
+    void authenticate_userNotFound_throwsAPIException() {
 
 
         // data send in JSON
@@ -96,18 +97,20 @@ public class AuthTests {
         when(userRepository.findByUsername(loginUserDto.getUsername()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class,()->authentificationService.authenticate(loginUserDto));
-
-        RuntimeException exception =  assertThrows(RuntimeException .class, () ->
+        assertThrows(APIException.class,()->authentificationService.authenticate(loginUserDto));
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.authenticate(loginUserDto)
         );
-        assertEquals("user with this username does not exist", exception.getMessage());
+
+        assertEquals("user not found", e.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, e.getHttpStatus());
+        assertEquals(ErrorCode.USER_NOT_FOUND , e.getErrorCode());
 
     }
 
 
     @Test
-    void authenticate_incorrectPassword_throwsRuntimeException() {
+    void authenticate_incorrectPassword_throwsAPIException() {
 
         // data send in JSON
         LoginUserDto loginUserDto = new LoginUserDto();
@@ -126,15 +129,21 @@ public class AuthTests {
         doThrow(new BadCredentialsException("Bad credentials"))
                 .when(authenticationManager).authenticate(any());
 
-        assertThrows(BadCredentialsException.class, () ->
+
+
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.authenticate(loginUserDto)
         );
+
+        assertEquals("wrong password", e.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, e.getHttpStatus());
+        assertEquals(ErrorCode.WRONG_PASSWORD , e.getErrorCode());
 
     }
 
 
     @Test
-    void authenticate_userNotVerified_throwsRuntimeException() {
+    void authenticate_userNotVerified_throwsAPIException() {
 
         // data send in JSON
         LoginUserDto loginUserDto = new LoginUserDto();
@@ -152,31 +161,39 @@ public class AuthTests {
 
 
 
-       RuntimeException exception =  assertThrows(RuntimeException .class, () ->
+
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.authenticate(loginUserDto)
         );
-        assertEquals("account not verified", exception.getMessage());
+
+        assertEquals("account not verified", e.getMessage());
+        assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+        assertEquals(ErrorCode.ACCOUNT_NOT_VERIFIED , e.getErrorCode());
 
 
     }
 
 
     @Test
-    void register_withNullFields_throwsRuntimeException() {
+    void register_withNullFields_throwsAPIException() {
 
         // data send in JSON
         RegisterUserDto registerUserDto = new RegisterUserDto();
 
-        RuntimeException exception =  assertThrows(RuntimeException .class, () ->
+
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.register(registerUserDto)
         );
-        assertEquals("all data fields must not be empty", exception.getMessage());
+
+        assertEquals("empty fields detected", e.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
+        assertEquals(ErrorCode.EMPTY_FIELDS , e.getErrorCode());
 
 
     }
 
     @Test
-    void register_withEmptyFields_throwsRuntimeException() {
+    void register_withEmptyFields_throwsAPIException() {
 
         // data send in JSON
         RegisterUserDto registerUserDto = new RegisterUserDto();
@@ -184,17 +201,20 @@ public class AuthTests {
         registerUserDto.setPassword("");
         registerUserDto.setUsername("");
 
-        RuntimeException exception =  assertThrows(RuntimeException .class, () ->
+
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.register(registerUserDto)
         );
-        assertEquals("all data fields must not be empty", exception.getMessage());
 
+        assertEquals("empty fields detected", e.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
+        assertEquals(ErrorCode.EMPTY_FIELDS , e.getErrorCode());
 
     }
 
 
     @Test
-    void register_withAlreadyUserMail_throwsRuntimeException() {
+    void register_withAlreadyUserMail_throwsAPIException() {
 
         // data send in JSON
         RegisterUserDto registerUserDto = new RegisterUserDto();
@@ -207,16 +227,20 @@ public class AuthTests {
                 .thenReturn(Optional.of(user));
 
 
-        assertThrows(EmailUsedException.class, () ->
+        APIException e = assertThrows(APIException.class, () ->
                 authentificationService.register(registerUserDto)
         );
+
+        assertEquals("email is already used", e.getMessage());
+        assertEquals(HttpStatus.CONFLICT, e.getHttpStatus());
+        assertEquals(ErrorCode.EMAIL_ALREADY_USED, e.getErrorCode());
 
 
     }
 
 
     @Test
-    void register_withAlreadyUserUsername_throwsRuntimeException() {
+    void register_withAlreadyUserUsername_throwsAPIException() {
 
         // data send in JSON
         RegisterUserDto registerUserDto = new RegisterUserDto();
@@ -229,9 +253,13 @@ public class AuthTests {
                 .thenReturn(Optional.of(user));
 
 
-        assertThrows(UsernameUsedException.class, () ->
+       APIException e = assertThrows(APIException.class, () ->
                 authentificationService.register(registerUserDto)
         );
+
+        assertEquals("username is already used", e.getMessage());
+        assertEquals(HttpStatus.CONFLICT, e.getHttpStatus());
+        assertEquals(ErrorCode.USERNAME_ALREADY_USED, e.getErrorCode());
 
 
     }

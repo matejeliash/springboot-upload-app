@@ -1,4 +1,4 @@
-package dev.matejeliash.springbootbackend.dto;
+package dev.matejeliash.springbootbackend.response;
 
 
 
@@ -6,13 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-public class ResponseUserDto {
+public class RegisterResponse {
 
     private String username;
     private String email;
 
 
-    public ResponseUserDto(String email, String username) {
+    public RegisterResponse(String email, String username) {
         this.email = email;
         this.username = username;
     }

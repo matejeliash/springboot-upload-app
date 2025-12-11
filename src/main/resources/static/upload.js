@@ -68,41 +68,53 @@ async function refresh(){
 
 
 
-function downloadFile(fileObj) {
 
-    fetch("http://localhost:8080/files/download", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + jwt
+async function downloadFile(fileObj) {
+    const jwt = localStorage.getItem("jwt");
+    // no jwt go back to login
+    if (!jwt) {
+        window.location.href = "/login";
+        return;
+    }
 
-        },
-        body: JSON.stringify(fileObj) // sending your object: {id, filename, size}
-    })
-        .then(response => {
-            const disposition = response.headers.get("Content-Disposition");
-            let filename = fileObj.filename;  // fallback to filename from file object
-
-            // get filename  from header
-            if (disposition && disposition.includes("filename=")) {
-                filename = disposition.split("filename=")[1].replace(/"/g, "");
-            }
-
-            return response.blob().then(blob => ({ blob, filename }));
-        })
-        .then(({ blob, filename }) => {
-            const url = window.URL.createObjectURL(blob);
-
-            // create downloadable link
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-
-            window.URL.revokeObjectURL(url);
+    try {
+        const res = await fetch("http://localhost:8080/files/download", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + jwt
+            },
+            body: JSON.stringify(fileObj)
         });
+
+        // throw error, propagate to catch
+        if (!res.ok) {
+            throw new Error(`Download failed: ${res.status} ${res.statusText}`);
+        }
+
+        // get filename from header
+        let filename = fileObj.filename; // fallback
+        const disposition = res.headers.get("Content-Disposition");
+        if (disposition && disposition.includes("filename=")) {
+            filename = disposition.split("filename=")[1].replace(/"/g, "");
+        }
+
+        const blob = await res.blob(); // blob representing files data
+        const url = window.URL.createObjectURL(blob);
+
+        // create link , present only after clicking
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error(err);
+        setMessage( messages["download.failure"],true);
+    }
 }
 
 
@@ -143,9 +155,8 @@ async function  deleteFile(fileObj) {
 
 
 
-// Attach the function to the button click
 document.getElementById("uploadBtn").addEventListener("click", upload);
-
+// in future  I may rewrite this funciotn to use fetch
 function upload() {
     const uploadBtn = document.getElementById('uploadBtn');
     const fileInput = document.getElementById("fileInput");
@@ -153,14 +164,13 @@ function upload() {
     const message = document.getElementById("message");
 
     if (!file) {
-        alert("Select a file first.");
+        alert(messages["upload.select.file.first"]);
         return;
     }
 
     const jwt = localStorage.getItem("jwt");
     if (!jwt) {
-        alert("You must log in first!");
-        window.location.href = "login.html";
+        window.location.href = "/login";
         return;
     }
 
@@ -172,29 +182,28 @@ function upload() {
     xhr.open("POST", "/files/upload", true);
     xhr.setRequestHeader("Authorization", "Bearer " + jwt);
 
-    // Listen for progress
+    // make listener on progress, and put progress to messages p
     xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-            message.textContent = `Uploading: ${percent}%`;
+            const percent = Math.round((event.loaded / event.total) * 100); // percentage
+            message.textContent = `Progress: ${percent}%`;
+            // later I may add upload speed
         }
     });
 
-    // On success
     xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
             message.textContent = messages["upload.success"];
-
             getFiles(); // refresh files list
         } else {
-
+            // error during upload
             message.textContent = messages["upload.failure"];
         }
     };
 
-    // On error
+    // error, before upload
     xhr.onerror = function () {
-        message.textContent = uploadBtn.dataset.uploadfailure;
+        message.textContent = messages["upload.failure"];
     };
 
     xhr.send(formData);

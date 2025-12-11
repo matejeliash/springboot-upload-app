@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FileDto {
+public class FileInfo {
 
     private Long id;
     private String filename;

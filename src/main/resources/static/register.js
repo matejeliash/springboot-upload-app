@@ -41,16 +41,21 @@ async function register() {
             })
         });
 
-        if (!res.ok) {
-            // let serverError = "";
-            // try {
-            //     serverError = (await res.json()).error || await res.text();
-            // } catch {
-            //     serverError = await res.text();
-            // }
+            console.log(res)
 
-            setMessage(messages["register.failure"],true);
+        if (!res.ok) {
+
+            const resObj= await res.json();
+            console.log(resObj)
+            if (resObj.errorCode === "USERNAME_ALREADY_USED"){
+                setMessage(messages["error.username.already.used"],true);
+            }else if (resObj.errorCode === "EMAIL_ALREADY_USED"){
+                    setMessage(messages["error.email.already.used"],true);
+            }
+
             return
+
+
         }
 
         setMessage(messages["register.success"], false);

@@ -1,6 +1,6 @@
 package dev.matejeliash.springbootbackend.controller;
 
-import dev.matejeliash.springbootbackend.dto.FileDto;
+import dev.matejeliash.springbootbackend.dto.FileInfo;
 import dev.matejeliash.springbootbackend.dto.UploadedFileDto;
 import dev.matejeliash.springbootbackend.model.UploadedFile;
 import dev.matejeliash.springbootbackend.model.User;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-// TODO comment and check all
 @RestController
 @RequestMapping("/files")
 public class FileController {
@@ -37,6 +36,7 @@ public class FileController {
     ){
 
         try{
+
             UploadedFile uploadedFile = fileUploadService.uploadFile(file,user);
             return ResponseEntity.ok(uploadedFile.getFilename() );
 
@@ -57,17 +57,17 @@ public class FileController {
     }
     // Download file, file objet with all needed file infos is in request body as JSON
     @PostMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@AuthenticationPrincipal User user, @RequestBody FileDto fileDto){
+    public ResponseEntity<Resource> downloadFile(@AuthenticationPrincipal User user, @RequestBody FileInfo fileInfo){
 
-        InputStream inputStream = fileUploadService.getFileInputStream(fileDto,user);
+        InputStream inputStream = fileUploadService.getFileInputStream(fileInfo,user);
 
         InputStreamResource resource = new InputStreamResource(inputStream);
 
         // Setup headers
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", fileDto.getFilename());
+        headers.setContentDispositionFormData("attachment", fileInfo.getFilename());
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // user OCTET for variability of types
-        headers.setContentLength(fileDto.getSize());
+        headers.setContentLength(fileInfo.getSize());
 
         return ResponseEntity.ok().headers(headers).body(resource);
 
@@ -76,9 +76,9 @@ public class FileController {
 
     //TODO remove
     @PostMapping("/delete")
-    public ResponseEntity<FileDto> removeFile(@AuthenticationPrincipal User user, @RequestBody FileDto fileDto){
+    public ResponseEntity<FileInfo> removeFile(@AuthenticationPrincipal User user, @RequestBody FileInfo fileInfo){
 
-        FileDto dto = fileUploadService.deleteFile(fileDto,user);
+        FileInfo dto = fileUploadService.deleteFile(fileInfo,user);
         return  ResponseEntity.ok(dto);
     }
 

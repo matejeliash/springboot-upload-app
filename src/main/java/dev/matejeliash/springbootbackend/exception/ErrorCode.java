@@ -1,0 +1,18 @@
+package dev.matejeliash.springbootbackend.exception;
+
+public enum ErrorCode {
+    INVALID_USERNAME,
+    INVALID_PASSWORD,
+    EMAIL_ALREADY_USED,
+    USERNAME_ALREADY_USED,
+    USER_NOT_FOUND,
+    ACCOUNT_NOT_VERIFIED,
+    CODE_EXPIRED,
+    WRONG_CODE,
+    ACCOUNT_ALREADY_VERIFIED,
+    EMPTY_FIELDS,
+    WRONG_PASSWORD,
+    FILE_NOT_EXIST,
+    NOT_OWNER
+
+}

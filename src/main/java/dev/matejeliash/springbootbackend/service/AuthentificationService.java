@@ -3,11 +3,12 @@ package dev.matejeliash.springbootbackend.service;
 import dev.matejeliash.springbootbackend.dto.LoginUserDto;
 import dev.matejeliash.springbootbackend.dto.RegisterUserDto;
 import dev.matejeliash.springbootbackend.dto.VerifyUserDto;
-import dev.matejeliash.springbootbackend.exception.EmailUsedException;
-import dev.matejeliash.springbootbackend.exception.UsernameUsedException;
+import dev.matejeliash.springbootbackend.exception.APIException;
+import dev.matejeliash.springbootbackend.exception.ErrorCode;
 import dev.matejeliash.springbootbackend.model.User;
 import dev.matejeliash.springbootbackend.repository.UserRepository;
 import jakarta.mail.MessagingException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,21 +40,34 @@ public class AuthentificationService {
     }
 
 
-    public User register(RegisterUserDto input) throws EmailUsedException, UsernameUsedException {
+    public User register(RegisterUserDto input)  {
 
+        // some data is missing
         if (input.getEmail() == null || input.getEmail().isEmpty() ||
                 input.getUsername() == null || input.getUsername().isEmpty() ||
                 input.getPassword() == null || input.getPassword().isEmpty()) {
-            throw new RuntimeException("all data fields must not be empty");
+            throw new APIException(
+                    "empty fields detected",
+                    ErrorCode.EMPTY_FIELDS,
+                    HttpStatus.BAD_REQUEST
+            );
         }
-
 
 
         if (userRepository.findByUsername(input.getUsername()).isPresent()){
-            throw new UsernameUsedException("username is already used");
+            throw new APIException(
+                    "username is already used",
+                    ErrorCode.USERNAME_ALREADY_USED,
+                    HttpStatus.CONFLICT
+            );
         }
         if( userRepository.findByEmail(input.getEmail()).isPresent()){
-                throw  new EmailUsedException("email is already used");
+
+            throw new APIException(
+                    "email is already used",
+                    ErrorCode.EMAIL_ALREADY_USED,
+                    HttpStatus.CONFLICT
+            );
         }
 
         //create User object, mark it as waiting for verification
@@ -69,18 +83,37 @@ public class AuthentificationService {
 
     public User authenticate(LoginUserDto input){
        User user= userRepository.findByUsername (input.getUsername())
-                .orElseThrow( ()-> new RuntimeException("user with this username does not exist"));
+                .orElseThrow( ()-> new APIException(
+                             "user not found",
+                             ErrorCode.USER_NOT_FOUND,
+                             HttpStatus.UNAUTHORIZED));
+
+
 
         if(!user.isEnabled()){
-            throw new RuntimeException("account not verified");
+            throw new APIException(
+                    "account not verified",
+                    ErrorCode.ACCOUNT_NOT_VERIFIED,
+                    HttpStatus.FORBIDDEN
+            );
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getUsername(),
-                        input.getPassword()
-                )
-        );
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            input.getUsername(),
+                            input.getPassword()
+                    )
+            );
+        // in case password is wrong then return my APIException
+        }catch (Exception e){
+            throw new APIException(
+                    "wrong password",
+                    ErrorCode.WRONG_PASSWORD,
+                    HttpStatus.UNAUTHORIZED
+            );
+
+        }
 
         return user;
     }
@@ -89,38 +122,75 @@ public class AuthentificationService {
         Optional<User> optionalUser  = userRepository.findByEmail(input.getEmail());
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
-            if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())){
-                throw new RuntimeException("Verification code has expired");
+
+            if (user.isEnabled()){
+                throw new APIException(
+                        "account is already verified",
+                        ErrorCode.ACCOUNT_ALREADY_VERIFIED,
+                        HttpStatus.FORBIDDEN
+                );
             }
+
+
+            // expired code
+            if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())){
+                throw new APIException(
+                        "verification code expired",
+                        ErrorCode.CODE_EXPIRED,
+                        HttpStatus.FORBIDDEN
+                );
+            }
+            // ver. code is valid
             else if (user.getVerificationCode().equals(input.getVerificationCode())){
                 user.setEnabled(true);
                 user.setVerificationCode(null);
                 user.setVerificationCodeExpiresAt(null);
                 userRepository.save(user);
             }else{
-                throw new RuntimeException("Invalid verification code");
-            }
-        }else{
-            throw new RuntimeException("User not found");
 
+                throw new APIException(
+                        "incorrect verificaition code",
+                        ErrorCode.WRONG_CODE,
+                        HttpStatus.UNAUTHORIZED
+                );
+            }
         }
+        // user with email not found
+        throw  new APIException(
+                "user not found",
+                ErrorCode.USER_NOT_FOUND,
+                HttpStatus.UNAUTHORIZED
+        );
+
     }
+
 
     public void resendVerificationCode(String email){
         Optional<User> optionalUser = userRepository.findByEmail(email);
+
+
         if (optionalUser.isPresent()){
             User user = optionalUser.get();
+
             if(user.isEnabled()){
-                throw  new RuntimeException("Account is already verified");
+                throw new APIException(
+                        "account is already verified",
+                        ErrorCode.ACCOUNT_ALREADY_VERIFIED,
+                        HttpStatus.FORBIDDEN
+                );
             }
 
             user.setVerificationCode(generateVerificationCode());
             user.setVerificationCodeExpiresAt(LocalDateTime.now().plusHours(1));
             sendVerificationEmail(user);
             userRepository.save(user);
-
+        // user not in db
         }else{
-            throw  new RuntimeException("User not found in repo");
+            throw  new APIException(
+                    "user not found",
+                    ErrorCode.USER_NOT_FOUND,
+                    HttpStatus.UNAUTHORIZED
+            );
 
         }
     }
@@ -144,6 +214,7 @@ public class AuthentificationService {
         try{
             emailService.sendVerificationEmail(user.getEmail(),subject,htmlMessage);
 
+            // for testing , to print detailer smtp error information
         }catch (MessagingException e){
             e.printStackTrace();
         }

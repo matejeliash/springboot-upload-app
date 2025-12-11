@@ -29,23 +29,8 @@ public class JwtService {
     private Long jwtExpiration;
 
 
-    public String extractUsername(String token){
-        return extractClaim(token, Claims::getSubject);
 
-    }
 
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
-       final Claims claims = extractAllClaims(token);
-       return claimsResolver.apply(claims);
-    }
-
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
-    }
-
-    public String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
-        return buildToken(extraClaims,userDetails,jwtExpiration);
-    }
 
     public Long getExpirationTime(){
         return jwtExpiration;
@@ -63,6 +48,16 @@ public class JwtService {
                 .compact();
     }
 
+
+    public String generateToken(UserDetails userDetails){
+        return generateToken(new HashMap<>(),userDetails);
+    }
+
+    // we only use UserDetails, this is added so we can extend in future
+    public String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
+        return buildToken(extraClaims,userDetails,jwtExpiration);
+    }
+
     public boolean isTokenValid(String token,UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
@@ -72,22 +67,35 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token){
-        return extractClaim(token,Claims::getExpiration);
-    }
-    private SecretKey getSignInKey(){ // Returns specific SecretKey
+    // generate key for signing and verification of JWT
+    private SecretKey getSignInKey(){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // generic function to extract specified clain by specifying generic Function
+    // claim == key  -> value , e.g. exp :
+    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public String extractUsername(String token){
+        return extractClaim(token, Claims::getSubject);
+
+    }
+
+    private Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
+    }
 
     private Claims extractAllClaims(String token) {
         return Jwts
-                .parser() // Correct: This returns the builder (JwtParserBuilder)
-                .verifyWith(getSignInKey()) // Correct: Use verifyWith() instead of setSigningKey()
-                .build() // Correct: Must be called to get the final JwtParser
-                .parseSignedClaims(token) // Correct: Use parseSignedClaims() instead of parseClaimsJws()
-                .getPayload(); // Correct: Use getPayload() instead of getBody()
+                .parser()
+                .verifyWith(getSignInKey()) // use key
+                .build()
+                .parseSignedClaims(token) // just signed pairs
+                .getPayload(); //
     }
 
 

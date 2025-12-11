@@ -39,10 +39,18 @@ async function login(){
 
 
         if (!res.ok){
-            const errMsg = await res.text();
 
-            setMessage(messages["login.failure"], true);
-            return;
+            const resObj= await res.json();
+            console.log(resObj)
+            if (resObj.errorCode === "WRONG_PASSWORD"){
+                setMessage(messages["error.wrong.password"],true);
+            }else if (resObj.errorCode === "USER_NOT_FOUND"){
+                setMessage(messages["error.user.not.found"],true);
+            }
+
+            return
+
+
         }
 
         const data = await res.json();
