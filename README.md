@@ -15,10 +15,6 @@ Basic features of this application:
 - All can be easily  compiled with Dockerfile and run together with Docker Compose
 
 ## Showcase
-<video width="600" controls>
-  <source src="./assets/video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
 
 ![register](./assets/register.png)
 ![login](./assets/login.png)
