@@ -24,10 +24,21 @@ Basic features of this application:
 
 
 ### Images
-![register](./assets/register.png)
+<!-- ![register](./assets/register.png)
 ![login](./assets/login.png)
 ![delete](./assets/delete.png)
-![move](./assets/move.png)
+![move](./assets/move.png) -->
+
+<table>
+  <tr>
+    <td><img src="./assets/register.png" width="200"/></td>
+    <td><img src="./assets/login.png" width="200"/></td>
+  </tr>
+  <tr>
+    <td><img src="./assets/delete.png" width="200"/></td>
+    <td><img src="./assets/move.png" width="200"/></td>
+  </tr>
+</table>
 
 ## How to run and configure
 
