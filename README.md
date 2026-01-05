@@ -1,4 +1,4 @@
-# Uploadfile springboot backeend
+# Springboot upload app
 
 
 This project is a basic Spring Boot backend/frontend application for uploading files and demonstrating basic account management.
