@@ -12,6 +12,8 @@ Basic features of this application:
 - Communication between frontend and backend using JS, mainly via the Fetch API
 - Multilanguage support, currently supporting Slovak and English
 - Basic functionality to upload and download files via frontend/API
+- Directory structure that allow to create directories and remove files and directories
+- Way to move files and directories using drag and drop
 - All can be easily  compiled with Dockerfile and run together with Docker Compose
 
 ## Showcase
