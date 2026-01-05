@@ -6,6 +6,8 @@ body{
     color: #ffffff;
     font-family: 'Work Sans', sans-serif;
     font-weight: 400; /* normal weight */
+    touch-action: auto;
+
 }
 
 
@@ -38,10 +40,29 @@ button{
     font-weight: bold;
 }
 
+.iconBtn{
+    display: inline-block;
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #ccc8c8;
+    color: black;
+    border-radius: 6px;
+    border: black;
+    outline: black;
+    margin: 10px;
+    font-size: 20px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: bold;
+
+}
+
 #box{
     display: flex;
     flex-direction: column; /* stack elements vertically */
-    align-items: center;    /
+    align-items: center;    
+    align-items: center;
+  width: 100%;
+
 }
 
 
@@ -134,25 +155,50 @@ h1, h2, h3 {
 }
 
 #uploadArea{
-    background: #333333;
+    background: #222;
     border-radius: 10px;
     padding :10px;
     min-width: 50%;
 }
 
-table,  td{
+/* table td{
+    background: #333;
+    padding: 2px;
+    text-align: center;
     border: 1px solid white;
     border-collapse: collapse ;
 
+} */
+
+#filesTable {
+
+    min-width: 50%;
+
+    /* table-layout: fixed; */
+    margin: 0 auto;      /* centers the table */
+    border-collapse: collapse;
+    touch-action: none;
+
 
 }
 
-table td{
-    background: #333;
-    padding: 2px;
 
+
+td, th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  background: #000;
+    touch-action: none;
+  
 }
 
+
+
+
+/* #filesTable thead tr td{
+    background-color: #000;
+    border-collapse: collapse;
+} */
 
 a:active{
     text-decoration: underline;
@@ -172,3 +218,66 @@ input{
 #tokenMinutesLeft, #usernameSpan{
     font-weight: bold;
 }
+
+/*tr.file, tr.dir {*/
+/*    touch-action: none; !* Needed for mobile drag *!*/
+/*}*/
+
+
+/*#filesTable tr.file,*/
+/*#filesTable tr.dir,*/
+/*#filesTable tr.file *,*/
+/*#filesTable tr.dir * {*/
+/*    touch-action: none;*/
+/*    cursor: grab;*/
+/*}*/
+
+
+.dragging {
+    position: absolute;
+    pointer-events: none; /* Let mouse pass through while dragging */
+    opacity: 0.8;
+    z-index: 1000;
+}
+
+
+
+
+
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal h3{
+    color: #000;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+

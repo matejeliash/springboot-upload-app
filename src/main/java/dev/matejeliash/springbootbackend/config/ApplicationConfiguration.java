@@ -12,6 +12,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 // Used as general configuration file for spring boot, spring boot injects these beans when needed
 // mostly in constructors or when @Autowired is used
@@ -52,6 +56,17 @@ public class ApplicationConfiguration {
         authenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return authenticationProvider;
+    }
+
+
+ @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        // Register JavaTimeModule to handle OffsetDateTime, LocalDateTime, Instant
+        mapper.registerModule(new JavaTimeModule());
+        // Disable timestamps to get ISO 8601 strings
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
     }
 
 }

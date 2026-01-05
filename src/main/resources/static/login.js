@@ -4,7 +4,11 @@ let messages = null;
 
 async function init(){
 
-    document.getElementById("loginBtn").addEventListener("click", login);
+    // document.getElementById("loginBtn").addEventListener("click", login);
+    document.getElementById("loginBtn").addEventListener("click", async function(e){
+        e.preventDefault(); // stop actual form submit
+        await login();
+    });
 
     messages = await getMessages();
 
@@ -60,9 +64,9 @@ async function login(){
         console.log("expiresIn " + localStorage.getItem("expiresIn")/1000);
         setMessage(messages["login.success"], false);
         // redirect to file upload page
-        setTimeout(() => {
-            window.location.href = "/upload";
-        }, 100);
+            //window.location.href = "/upload";
+
+        window.location.replace("/upload");
 
 
     }catch (error){

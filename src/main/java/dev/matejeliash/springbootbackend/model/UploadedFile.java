@@ -23,11 +23,14 @@ public class UploadedFile {
     @Column(nullable = false)
     private String filename;
 
-    @Column(nullable = false,unique = true)
-    private String filepath;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dir_id",nullable = true)
+    private Directory directory;
+
+
 
     @Column(nullable = false)
-    private LocalDateTime uploadedAt;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private Long size;
@@ -40,12 +43,17 @@ public class UploadedFile {
     @Column(nullable = true)
     private String shareId;
 
+    public String getFullPath() {
+        if (directory == null){
+            return filename;
+        }
+        return directory.getFullPath() + "/" + filename;
+    }
 
-
-    public UploadedFile(String filename, String filepath, Long size, User user) {
+    public UploadedFile(String filename, Directory directory, Long size, User user) {
         this.filename = filename;
-        this.filepath = filepath;
-        this.uploadedAt = LocalDateTime.now();
+        this.directory = directory;
+        this.createdAt = LocalDateTime.now();
         this.size = size;
         this.user = user;
     }

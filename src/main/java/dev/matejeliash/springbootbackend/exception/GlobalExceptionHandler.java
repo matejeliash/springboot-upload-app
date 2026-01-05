@@ -16,6 +16,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(APIException.class)
     public ResponseEntity<ErrorResponse> handleAPIException(APIException e) {
+        System.out.print("GEH =");
+        System.out.println(e.getMessage());
         ErrorResponse response = new ErrorResponse(
                 e.getErrorCode().name(),
                 e.getHttpStatus().value(),
@@ -27,6 +29,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+
+        System.out.print("GEH =");
+        System.out.println(e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error: " + e.getMessage());

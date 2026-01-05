@@ -1,5 +1,6 @@
 package dev.matejeliash.springbootbackend.config;
 
+import java.util.Locale;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -9,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import java.util.Locale;
 /*
 Provides all configuration needed for language support,
 files for specific languages are in resources/messages/message_<lang>.properties
@@ -19,7 +19,7 @@ files for specific languages are in resources/messages/message_<lang>.properties
 public class LangSuppportConfiguration implements WebMvcConfigurer {
 
     @Bean
-    public ResourceBundleMessageSource messageSource(){
+    public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource source = new ResourceBundleMessageSource();
 
         source.setBasenames("messages.messages");
@@ -29,22 +29,21 @@ public class LangSuppportConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocaleResolver localeResolver(){
-        SessionLocaleResolver resolver  = new SessionLocaleResolver();
-        resolver.setDefaultLocale(Locale.US);// fallback to US
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver resolver = new SessionLocaleResolver();
+        resolver.setDefaultLocale(Locale.US); // fallback to US
         return resolver;
     }
 
     // this provides way to set lang via path variable like ?last=us
-    public LocaleChangeInterceptor localeChangeInterceptor(){
+    public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
         interceptor.setParamName("lang");
-        return  interceptor;
+        return interceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
     }
-
 }
